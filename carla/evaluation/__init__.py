@@ -7,3 +7,4 @@ from .process_nans import remove_nans
 from .redundancy import redundancy
 from .success_rate import success_rate
 from .violations import constraint_violation
+from .recourse_time import recourse_time_taken
