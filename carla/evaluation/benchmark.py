@@ -185,13 +185,21 @@ class Benchmark:
         -------
         pd.DataFrame
         """
+        
+        factual_without_nans, counterfactuals_without_nans = remove_nans(
+            self._factuals, self._counterfactuals
+        )
 
-        time_taken = self._timer / self._counterfactuals.shape[0]
-
+        if counterfactuals_without_nans.empty:
+            time_taken = []
+        else:
+            time_taken = time_taken(
+                self._mlmodel, factual_without_nans
+            )
         columns = ["Time_taken"]
 
-        return pd.DataFrame([[time_taken]], columns=columns)
-
+        return pd.DataFrame(time_taken, columns=columns)
+    
     def compute_ynn_dist(self) -> pd.DataFrame:
         """
         TODO
