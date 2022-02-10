@@ -10,6 +10,7 @@ from carla.evaluation.process_nans import remove_nans
 from carla.evaluation.redundancy import redundancy
 from carla.evaluation.success_rate import success_rate
 from carla.evaluation.violations import constraint_violation
+from carla.evaluation.recourse_time import recourse_time_taken
 from carla.models.api import MLModel
 from carla.models.catalog import MLModelCatalog
 from carla.recourse_methods.api import RecourseMethod
@@ -193,8 +194,8 @@ class Benchmark:
         if counterfactuals_without_nans.empty:
             time_taken = []
         else:
-            time_taken = time_taken(
-                self._mlmodel, factual_without_nans
+            time_taken = recourse_time_taken(
+                self._recourse_method, factual_without_nans
             )
         columns = ["Time_taken"]
 
