@@ -174,7 +174,72 @@ class Benchmark:
         columns = ["Constraint_Violation"]
 
         return pd.DataFrame(violations, columns=columns)
+    
+    def compute_time_taken(self) -> pd.DataFrame:
+        
+        """
+        TODO
+        Computes time taken for generated counterfactual
 
+        Returns
+        -------
+        pd.DataFrame
+        """
+
+        time_taken = self._timer / self._counterfactuals.shape[0]
+
+        columns = ["Time_taken"]
+
+        return pd.DataFrame([[time_taken]], columns=columns)
+
+    def compute_ynn_dist(self) -> pd.DataFrame:
+        """
+        TODO
+        Computes y-Nearest-Neighbours for generated counterfactuals
+
+        Returns
+        -------
+        pd.DataFrame
+        """
+        _, counterfactuals_without_nans = remove_nans(
+            self._factuals, self._counterfactuals
+        )
+
+        if counterfactuals_without_nans.empty:
+            ynn = np.nan
+        else:
+            ynn = yNN(
+                counterfactuals_without_nans, self._recourse_method, self._mlmodel, 5
+            )
+
+        columns = ["y-Nearest-Neighbours-Distance"]
+
+        return pd.DataFrame([[ynn]], columns=columns)
+    
+    def compute_ynn_prob(self) -> pd.DataFrame:
+        """
+        TODO
+        Computes y-Nearest-Neighbours for generated counterfactuals
+
+        Returns
+        -------
+        pd.DataFrame
+        """
+        _, counterfactuals_without_nans = remove_nans(
+            self._factuals, self._counterfactuals
+        )
+
+        if counterfactuals_without_nans.empty:
+            ynn = np.nan
+        else:
+            ynn = yNN(
+                counterfactuals_without_nans, self._recourse_method, self._mlmodel, 5
+            )
+
+        columns = ["y-Nearest-Neighbours-Probability"]
+
+        return pd.DataFrame([[ynn]], columns=columns)
+    
     def compute_redundancy(self) -> pd.DataFrame:
         """
         Computes redundancy for each counterfactual
