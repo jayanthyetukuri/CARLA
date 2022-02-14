@@ -301,6 +301,7 @@ class Benchmark:
             self.compute_ynn(),
             self.compute_success_rate(),
             self.compute_average_time(),
+            self.compute_time_taken(),
         ]
 
         output = pd.concat(pipeline, axis=1)
