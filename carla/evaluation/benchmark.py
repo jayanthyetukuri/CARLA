@@ -303,6 +303,8 @@ class Benchmark:
             self.compute_constraint_violation(),
             self.compute_redundancy(),
             self.compute_ynn(),
+            self.compute_ynn_prob(),
+            self.compute_ynn_dist(),
             self.compute_success_rate(),
             self.compute_average_time(),
             self.compute_time_taken(),
