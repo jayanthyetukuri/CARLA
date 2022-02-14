@@ -217,14 +217,16 @@ class Benchmark:
         if counterfactuals_without_nans.empty:
             ynn = np.nan
         else:
-            ynn = yNN(
+            ynn = yNN_dist(
                 counterfactuals_without_nans, self._recourse_method, self._mlmodel, 5
             )
 
         columns = ["y-Nearest-Neighbours-Distance"]
 
-        return pd.DataFrame([[ynn]], columns=columns)
-    
+        output = pd.DataFrame(ynn, columns=columns)
+
+        return output
+        
     def compute_ynn_prob(self) -> pd.DataFrame:
         """
         TODO
@@ -241,13 +243,15 @@ class Benchmark:
         if counterfactuals_without_nans.empty:
             ynn = np.nan
         else:
-            ynn = yNN(
+            ynn = yNN_prob(
                 counterfactuals_without_nans, self._recourse_method, self._mlmodel, 5
             )
 
         columns = ["y-Nearest-Neighbours-Probability"]
 
-        return pd.DataFrame([[ynn]], columns=columns)
+        output = pd.DataFrame(ynn, columns=columns)
+
+        return output
     
     def compute_redundancy(self) -> pd.DataFrame:
         """
