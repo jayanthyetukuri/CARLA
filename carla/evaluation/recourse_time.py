@@ -8,7 +8,7 @@ from carla.recourse_methods.api import RecourseMethod
 
 def recourse_time_taken(
     recourse_method: RecourseMethod, factuals: pd.DataFrame
-) -> List[List[float]]:
+) -> List[List[int]]:
     """
     Time taken per counterfactual
     Parameters
@@ -18,9 +18,16 @@ def recourse_time_taken(
     Returns
     -------
     """
+    self._counterfactuals = recourse_method.get_counterfactuals(factuals)
+    stop = timeit.default_timer()
+    self._timer = stop - start
+
     times = []
     for fact in factuals:
+      start = timeit.default_timer()      
       recourse_method.get_counterfactuals(fact)
-      times.append([0.0])
+      stop = timeit.default_timer()
+      times.append([stop - start])
       
-    return times
+    columns = ["recourse_time_taken"]
+    return pd.DataFrame(times, columns=columns)
