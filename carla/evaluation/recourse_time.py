@@ -29,5 +29,4 @@ def recourse_time_taken(
       stop = timeit.default_timer()
       times.append([stop - start])
       
-    columns = ["recourse_time_taken"]
-    return pd.DataFrame(times, columns=columns)
+    return times
