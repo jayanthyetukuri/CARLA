@@ -1,10 +1,11 @@
 import numpy as np
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
+from typing import List
 
 from carla.models.api import MLModel
 from carla.recourse_methods.api import RecourseMethod
-
+from carla.evaluation.distances import get_distances
 
 def yNN(
     counterfactuals: pd.DataFrame,
@@ -51,7 +52,7 @@ def yNN_prob(
     recourse_method: RecourseMethod,
     mlmodel: MLModel,
     y: int,
-) -> List[List[float]]:
+)-> List[List[float]]:
     """
     TODO
     Parameters
@@ -94,7 +95,8 @@ def yNN_dist(
     recourse_method: RecourseMethod,
     mlmodel: MLModel,
     y: int,
-) -> List[List[float]]:
+    dist_type: int = 0,
+)-> List[List[float]]:
     """
     TODO
     Parameters
@@ -124,8 +126,10 @@ def yNN_dist(
             neighbour = df_enc_norm_data.iloc[idx]
             neighbour = neighbour.drop(mlmodel.data.target)
             neighbour = neighbour.values.reshape((1, -1))
-
-            distances_local += dist(row, neighbour)
+            row_copy = row.drop(mlmodel.data.target)
+            row_copy = row_copy.values.reshape((1, -1))
+            
+            distances_local += get_distances(row_copy, neighbour)[0][dist_type]
             
         distances.append([(1 / y) * distances_local])
         

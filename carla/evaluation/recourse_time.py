@@ -2,7 +2,7 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-
+import timeit
 from carla.recourse_methods.api import RecourseMethod
 
 
@@ -18,14 +18,13 @@ def recourse_time_taken(
     Returns
     -------
     """
-    self._counterfactuals = recourse_method.get_counterfactuals(factuals)
-    stop = timeit.default_timer()
-    self._timer = stop - start
-
+    
     times = []
-    for fact in factuals:
+    for i in range(factuals.shape[0]):
       start = timeit.default_timer()      
-      recourse_method.get_counterfactuals(fact)
+      df = pd.DataFrame(columns=factuals.columns)
+      df.loc[0] = factuals.iloc[i]
+      recourse_method.get_counterfactuals(df)
       stop = timeit.default_timer()
       times.append([stop - start])
       

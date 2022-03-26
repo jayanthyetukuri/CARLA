@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 from carla.evaluation.distances import get_distances
-from carla.evaluation.nearest_neighbours import yNN
+from carla.evaluation.nearest_neighbours import yNN, yNN_prob, yNN_dist
 from carla.evaluation.process_nans import remove_nans
 from carla.evaluation.redundancy import redundancy
 from carla.evaluation.success_rate import success_rate
@@ -239,7 +239,7 @@ class Benchmark:
         _, counterfactuals_without_nans = remove_nans(
             self._factuals, self._counterfactuals
         )
-
+        
         if counterfactuals_without_nans.empty:
             ynn = np.nan
         else:
