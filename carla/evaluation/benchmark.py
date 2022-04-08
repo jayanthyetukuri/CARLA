@@ -6,9 +6,11 @@ import pandas as pd
 
 from carla.evaluation.distances import get_distances
 from carla.evaluation.nearest_neighbours import yNN, yNN_prob, yNN_dist
+from carla.evaluation.manifold import yNN_manifold, sphere_manifold
 from carla.evaluation.process_nans import remove_nans
 from carla.evaluation.redundancy import redundancy
-from carla.evaluation.success_rate import success_rate
+from carla.evaluation.success_rate import success_rate, individual_success_rate
+from carla.evaluation.diversity import individual_diversity, avg_diversity
 from carla.evaluation.violations import constraint_violation
 from carla.evaluation.recourse_time import recourse_time_taken
 from carla.models.api import MLModel
@@ -200,6 +202,56 @@ class Benchmark:
         columns = ["Time_taken"]
 
         return pd.DataFrame(time_taken, columns=columns)
+
+    def compute_individual_diversity(self) -> pd.DataFrame:
+        
+        """
+        TODO
+        Computes instance-wise diveristy for generated counterfactual
+
+        Returns
+        -------
+        pd.DataFrame
+        """
+        
+        factual_without_nans, counterfactuals_without_nans = remove_nans(
+            self._factuals, self._counterfactuals
+        )
+
+        if counterfactuals_without_nans.empty:
+            diveristy = []
+        else:
+            diveristy = individual_diversity(
+                counterfactuals_without_nans, factual_without_nans
+            )
+        columns = ["Individual_Diversity"]
+
+        return pd.DataFrame(diveristy, columns=columns)
+
+    def compute_avg_diversity(self) -> pd.DataFrame:
+        
+        """
+        TODO
+        Computes average diversity for generated counterfactual
+
+        Returns
+        -------
+        pd.DataFrame
+        """
+        
+        factual_without_nans, counterfactuals_without_nans = remove_nans(
+            self._factuals, self._counterfactuals
+        )
+
+        if counterfactuals_without_nans.empty:
+            diversity = []
+        else:
+            diversity = avg_diversity(
+                counterfactuals_without_nans, factual_without_nans
+            )
+        columns = ["Average_Diversity"]
+
+        return pd.DataFrame(diversity, columns=columns)
     
     def compute_ynn_dist(self) -> pd.DataFrame:
         """
@@ -222,6 +274,58 @@ class Benchmark:
             )
 
         columns = ["y-Nearest-Neighbours-Distance"]
+
+        output = pd.DataFrame(ynn, columns=columns)
+
+        return output
+
+    def compute_manifold_ynn(self) -> pd.DataFrame:
+        """
+        TODO
+        Computes y-Nearest-Neighbours for generated counterfactuals with respect to positive class
+
+        Returns
+        -------
+        pd.DataFrame
+        """
+        _, counterfactuals_without_nans = remove_nans(
+            self._factuals, self._counterfactuals
+        )
+
+        if counterfactuals_without_nans.empty:
+            ynn = np.nan
+        else:
+            ynn = yNN_manifold(
+                counterfactuals_without_nans, self._recourse_method, self._mlmodel, 5
+            )
+
+        columns = ["y-Nearest-Neighbours-Manifold-Distance"]
+
+        output = pd.DataFrame(ynn, columns=columns)
+
+        return output
+
+    def compute_manifold_sphere(self) -> pd.DataFrame:
+        """
+        TODO
+        Computes neighbor distance for generated counterfactuals with respect to positive class within sphere
+
+        Returns
+        -------
+        pd.DataFrame
+        """
+        _, counterfactuals_without_nans = remove_nans(
+            self._factuals, self._counterfactuals
+        )
+
+        if counterfactuals_without_nans.empty:
+            ynn = np.nan
+        else:
+            ynn = sphere_manifold(
+                counterfactuals_without_nans, self._recourse_method, self._mlmodel
+            )
+
+        columns = ["Sphere-Manifold-Distance"]
 
         output = pd.DataFrame(ynn, columns=columns)
 
@@ -290,6 +394,20 @@ class Benchmark:
 
         return pd.DataFrame([[rate]], columns=columns)
 
+    def compute_individual_success_rate(self) -> pd.DataFrame:
+        """
+        Computes success rate for the whole recourse method.
+
+        Returns
+        -------
+        pd.Dataframe
+        """
+
+        rate = individual_success_rate(self._counterfactuals)
+        columns = ["Individual_Success_Rate"]
+
+        return pd.DataFrame([[rate]], columns=columns)
+
     def run_benchmark(self) -> pd.DataFrame:
         """
         Runs every measurement and returns every value as dict.
@@ -302,12 +420,17 @@ class Benchmark:
             self.compute_distances(),
             self.compute_constraint_violation(),
             self.compute_redundancy(),
-            self.compute_ynn(),
             self.compute_ynn_prob(),
             self.compute_ynn_dist(),
+            #self.compute_individual_success_rate(),
+            self.compute_individual_diversity(),
+            self.compute_time_taken(),
+            self.compute_manifold_ynn(),
+            self.compute_manifold_sphere(),
             self.compute_success_rate(),
             self.compute_average_time(),
-            self.compute_time_taken(),
+            self.compute_ynn()
+            #self.compute_avg_diversity()
         ]
 
         output = pd.concat(pipeline, axis=1)

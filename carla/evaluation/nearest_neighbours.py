@@ -34,6 +34,8 @@ def yNN(
     nbrs = NearestNeighbors(n_neighbors=y).fit(df_enc_norm_data.values)
 
     for i, row in counterfactuals.iterrows():
+        if pd.isna(row).any():
+            continue
         knn = nbrs.kneighbors(row.values.reshape((1, -1)), y, return_distance=False)[0]
         cf_label = row[mlmodel.data.target]
 
@@ -74,6 +76,9 @@ def yNN_prob(
     nbrs = NearestNeighbors(n_neighbors=y).fit(df_enc_norm_data.values)
 
     for i, row in counterfactuals.iterrows():
+        if pd.isna(row).any():
+            number_of_diff_labels.append(np.nan)
+            continue
         knn = nbrs.kneighbors(row.values.reshape((1, -1)), y, return_distance=False)[0]
         cf_label = row[mlmodel.data.target]
         number_of_diff_labels_local = 0
@@ -118,6 +123,9 @@ def yNN_dist(
     nbrs = NearestNeighbors(n_neighbors=y).fit(df_enc_norm_data.values)
 
     for i, row in counterfactuals.iterrows():
+        if pd.isna(row).any():
+            distances.append(np.nan)
+            continue
         knn = nbrs.kneighbors(row.values.reshape((1, -1)), y, return_distance=False)[0]
         cf_label = row[mlmodel.data.target]
         distances_local = 0
