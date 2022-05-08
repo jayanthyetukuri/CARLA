@@ -181,7 +181,7 @@ class CCHVAE(RecourseMethod):
 
         # get predicted label of instance
         instance_label = np.argmax(
-            self._mlmodel.predict_proba(torch_fact.float()).cpu().detach().numpy(),
+            self._mlmodel.predict_proba(torch_fact.float().cpu()).detach().numpy(),
             axis=1,
         )
 

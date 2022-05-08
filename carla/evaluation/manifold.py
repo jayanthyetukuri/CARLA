@@ -12,7 +12,7 @@ def yNN_manifold(
     counterfactuals: pd.DataFrame,
     recourse_method: RecourseMethod,
     mlmodel: MLModel,
-    y: int,
+    y: int = 5,
     dist_type: int = 1,
 )-> List[List[float]]:
     """
@@ -94,8 +94,9 @@ def sphere_manifold(
         pos_dists = np.sum(np.square(np.abs(pos_deltas)), axis=1, dtype=np.float)
         pos_euc_dist = np.sqrt(pos_dists)
         relevant_neighbors = np.where(pos_euc_dist < radius)[0]
+        #print(relevant_neighbors)
         if len(relevant_neighbors) == 0:
-            distances.append([np.nan])
+            distances.append(np.nan)
         else:
             relevant_distances = pos_euc_dist[relevant_neighbors]
             distances.append(np.mean(relevant_distances))

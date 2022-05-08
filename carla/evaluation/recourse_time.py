@@ -20,10 +20,16 @@ def recourse_time_taken(
     """
     
     times = []
-    for i in range(factuals.shape[0]):
-      start = timeit.default_timer()      
-      df = pd.DataFrame(columns=factuals.columns)
-      df.loc[0] = factuals.iloc[i]
+    dtypes_dict = {}
+    for j, col in enumerate(factuals.columns):
+        dtypes_dict[col] = factuals.dtypes[j]
+    df = pd.DataFrame(columns=factuals.columns)
+    df = df.astype(dtype= dtypes_dict)
+    df = pd.DataFrame(columns=factuals.columns)
+    df = df.astype(dtype= dtypes_dict)
+    for i in range(factuals.shape[0]): 
+      df.loc[0]= factuals.iloc[i]     
+      start = timeit.default_timer()
       recourse_method.get_counterfactuals(df)
       stop = timeit.default_timer()
       times.append([stop - start])

@@ -3,6 +3,7 @@ from typing import Union
 
 import numpy as np
 import pandas as pd
+import copy
 
 from carla.evaluation.distances import get_distances
 from carla.evaluation.nearest_neighbours import yNN, yNN_prob, yNN_dist
@@ -59,10 +60,12 @@ class Benchmark:
         mlmodel: Union[MLModel, MLModelCatalog],
         recourse_method: RecourseMethod,
         factuals: pd.DataFrame,
+        dataset: pd.DataFrame = None
     ) -> None:
 
         self._mlmodel = mlmodel
         self._recourse_method = recourse_method
+        self._full_dataset = dataset
         start = timeit.default_timer()
         self._counterfactuals = recourse_method.get_counterfactuals(factuals)
         stop = timeit.default_timer()
@@ -72,7 +75,7 @@ class Benchmark:
         if isinstance(mlmodel, MLModelCatalog):
             self._mlmodel.use_pipeline = False  # type: ignore
 
-        self._factuals = factuals.copy()
+        self._factuals = copy.deepcopy(factuals)
 
         # Normalizing and encoding factual for later use
         self._enc_norm_factuals = recourse_method.encode_normalize_order_factuals(
@@ -197,7 +200,7 @@ class Benchmark:
             time_taken = []
         else:
             time_taken = recourse_time_taken(
-                self._recourse_method, factual_without_nans
+                self._recourse_method, self._factuals
             )
         columns = ["Time_taken"]
 
@@ -350,7 +353,7 @@ class Benchmark:
             ynn = yNN_prob(
                 counterfactuals_without_nans, self._recourse_method, self._mlmodel, 5
             )
-
+        print(ynn)
         columns = ["y-Nearest-Neighbours-Probability"]
 
         output = pd.DataFrame(ynn, columns=columns)
@@ -423,7 +426,7 @@ class Benchmark:
             self.compute_ynn_prob(),
             self.compute_ynn_dist(),
             #self.compute_individual_success_rate(),
-            self.compute_individual_diversity(),
+            #self.compute_individual_diversity(),
             self.compute_time_taken(),
             self.compute_manifold_ynn(),
             self.compute_manifold_sphere(),
